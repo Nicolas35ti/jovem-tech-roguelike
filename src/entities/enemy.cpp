@@ -27,8 +27,28 @@ Vector3 Enemy::getPosition() const
 	return position;
 }
 
-void Enemy::Update(){
-	//logica de ia vai aqui
+void Enemy::Update()
+{
+}
+
+
+void Enemy::Update(const Vector3& playerPos){
+	Vector3 dir = Vector3Subtract(playerPos, position);
+	dir = Vector3Normalize(dir);
+
+	float speed = 0.2f;
+	switch(type)
+	{
+		case EnemyType::Normal: speed = 0.02f; break;
+		case EnemyType::Fast: speed = 0.05f; break;
+		case EnemyType::Tank: speed = 0.01f; break;
+		case EnemyType::Boss: speed = 0.015f; break;
+		default: break;
+	}
+
+	position.x += dir.x * speed;
+	position.z += dir.z * speed;
+	position.y += dir.y * speed;
 }
 
 void Enemy::Draw()

@@ -160,6 +160,7 @@ void Game::Update()
 
 	for (auto& enemy : enemies)
 	{
+		enemy.Update(player.getPosition());
 		if (damageTimer <= 0.0f &&
 			CheckCollisionSpheres(player.getPosition(), 0.5f, enemy.getPosition(), 0.5f))
 			{
