@@ -29,9 +29,10 @@ void Game::InitGame()
 
 	//inimigos
 	enemies.clear();
-	enemies.emplace_back(Enemy({5.0f, 0.5f, 5.0f}));
-	enemies.emplace_back(Enemy({10.0f, 0.5f, 8.0f}));
-	enemies.emplace_back(Enemy({3.0f, 0.5f, 12.0f}));
+	enemies.emplace_back(Enemy({0.5f, 9.5f, 0.5f}, EnemyType::Normal));
+	enemies.emplace_back(Enemy({10.0f, 0.5f, 8.0f}, EnemyType::Fast));
+	enemies.emplace_back(Enemy({15.0f, 0.5f, 6.0f}, EnemyType::Tank));
+	enemies.emplace_back(Enemy({20.0f, 0.5f, 10.0f}, EnemyType::Boss));
 
 	SetMousePosition(screenWidth/2, screenHeight/2);
 	DisableCursor();
@@ -39,9 +40,41 @@ void Game::InitGame()
 	hud = new HUD(&player, &playerHaveKey);
 }
 
+//=======FUNÇÂO DE DEBUG=========
+void Game::HandleDebug()
+{
+	if (!debugMode) return;
+
+	//spawn de inimigos
+	if (IsKeyPressed(KEY_ONE))
+	{
+		enemies.emplace_back(Enemy(player.getPosition(), EnemyType::Normal));
+	}
+	if (IsKeyPressed(KEY_TWO))
+	{
+		enemies.emplace_back(Enemy(player.getPosition(), EnemyType::Fast));
+	}
+	if (IsKeyPressed(KEY_THREE))
+	{
+		enemies.emplace_back(Enemy(player.getPosition(), EnemyType::Tank));
+	}
+	if (IsKeyPressed(KEY_FOUR))
+	{
+		enemies.emplace_back(Enemy(player.getPosition(), EnemyType::Boss));
+	}
+
+	DrawText("DEBUG MODE ON", 10, screenHeight - 60, 20, RED);
+
+	std::string info = "Enemies " + std::to_string(enemies.size()) + " | Player HP: " + std::to_string(player.GetHP());
+	DrawText(info.c_str(), 10, screenHeight - 30, 20, BLACK);
+}
+
 //lógica de atualizaçao a cada frame
 void Game::Update()
 {
+
+	HandleDebug();
+	if (IsKeyPressed(KEY_F3)) debugMode = !debugMode;
 
 	switch(currentState)
 	{
@@ -121,6 +154,20 @@ void Game::Update()
 	default:
 		break;
 	}
+
+	damageTimer -= GetFrameTime();
+	if (damageTimer < 0.0f) damageTimer = 0.0f;
+
+	for (auto& enemy : enemies)
+	{
+		if (damageTimer <= 0.0f &&
+			CheckCollisionSpheres(player.getPosition(), 0.5f, enemy.getPosition(), 0.5f))
+			{
+				player.SetHP(player.GetHP() - enemy.getDamage());
+				player.ClampHP();
+				damageTimer = 1.0f;
+			}
+	}
 }
 
 //logica de desenho a cada frame
@@ -149,6 +196,8 @@ void Game::Draw()
 
 	hud->Draw();
 
+	if (debugMode) HandleDebug();
+
 
 	//interface(UI)
 	if (currentState == QUIZ)
@@ -161,3 +210,4 @@ void Game::Draw()
 		DrawText("VOCÊ VENCEU!", screenWidth / 2 - 150, screenHeight / 2 - 20, 40, GREEN);
 	}
 }
+

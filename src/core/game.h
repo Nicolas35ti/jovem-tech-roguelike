@@ -29,6 +29,7 @@ public:
 	//funções principais do loop do jogo
 	void Update();
 	void Draw();
+	void HandleDebug();
 
 private:
 	//VARIAVEIS DO JOGO
@@ -51,9 +52,14 @@ private:
 
 	bool playerHaveKey;
 
+	float damageTimer = 0.0f;
+
 	//funções auxiliares
 	void InitGame();
 	void ResetGame();
+
+	//-----DEBUG MODD-----
+	bool debugMode = true;
 };
 
 #endif
